@@ -1,10 +1,11 @@
 import { Controller, Get, Post, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
+import { CloudService } from "./cloud.service";
 
 @Controller("/api/cloud")
 export class CloudController {
-    // constructor(private cloudService: CloudService) {}
+    constructor(private cloudService: CloudService) {}
 
     @UseGuards(JwtAuthGuard)
     @Get('')
@@ -16,6 +17,6 @@ export class CloudController {
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(@UploadedFile() file: Express.Multer.File, @Request() req: any) {
-        console.log(file, req.user.username, req.user.userId);
+        await this.cloudService.uploadFile(file, req.user.userId);
     }
 }
