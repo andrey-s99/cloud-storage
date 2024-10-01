@@ -2,16 +2,26 @@ import { AppBar, Box, Toolbar, Button } from "@mui/material"
 import CloudIcon from '@mui/icons-material/Cloud';
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/auth-context";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
     const [headerMenu, setHeaderMenu] = useState(<></>);
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, setIsAuthenticated } = useAuth();
+
+    const navigate = useNavigate();
+
+    const handleSignout = async () => {
+        // Delete JWT token on client side
+        localStorage.removeItem("token");
+        setIsAuthenticated(false);
+        navigate("/");
+    }
 
     useEffect(() => {
         setHeaderMenu(
             isAuthenticated ? (
                 <Button 
-                    href="/sign-out"
+                    onClick={handleSignout}
                     sx={{
                         color: "white"
                     }}
