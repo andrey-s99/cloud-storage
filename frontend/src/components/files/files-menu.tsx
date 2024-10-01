@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid2';
 import { FileCard } from "../../components/files/file-card";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { FolderCard } from "./folder-card";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -21,7 +22,7 @@ export const FilesMenu = () => {
 
     const [breadcrumbs, setBreadcrumbs] = useState<(JSX.Element | undefined)[]>([]);
     const [fileCards, setFileCards] = useState<(JSX.Element | undefined)[]>([]);
-    //const [folderCards, setFolderCards] = useState<(JSX.Element | undefined)[]>([]);
+    const [folderCards, setFolderCards] = useState<(JSX.Element | undefined)[]>([]);
 
     useEffect(() => {
         getUserData();
@@ -39,7 +40,19 @@ export const FilesMenu = () => {
                 )
             }) : [];
         });
-    }, [files]);
+
+        setFolderCards(() => {
+            return folders ? folders.map(f => {
+                return (
+                    <FolderCard
+                        key={crypto.randomUUID()}
+                        name={f}
+                    >
+                    </FolderCard>
+                )
+            }) : [];
+        });
+    }, [files, folders]);
 
     const handleBreadcrumbClick = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault();
@@ -129,6 +142,7 @@ export const FilesMenu = () => {
                             gap: "10px"
                         }}
                     >
+                        {folderCards}
                         {fileCards}
                     </Box>
                 </Grid>
