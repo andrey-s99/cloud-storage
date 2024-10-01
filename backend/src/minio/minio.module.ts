@@ -8,7 +8,7 @@ import { ConfigService } from "@nestjs/config";
         NestMinioModule.registerAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
-                endPoint: '127.0.0.1',
+                endPoint: configService.get<string>('MINIO_HOST') ?? 'localhost',
                 port: 9000,
                 useSSL: false,
                 accessKey: configService.get<string>('MINIO_ROOT_USER') ?? '',
