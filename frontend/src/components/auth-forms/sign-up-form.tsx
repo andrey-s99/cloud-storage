@@ -24,7 +24,7 @@ export const SignUpForm = () => {
 
         try {
             const response = await axios.post(
-                `${apiUrl}/auth/sign-in`,
+                `${apiUrl}/auth/sign-up`,
                 {
                     username,
                     password
