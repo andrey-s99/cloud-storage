@@ -48,8 +48,6 @@ export class MinioService {
     }
 
     async getFiles(username: string, userId: number) {
-        console.log(`Getting files for ${username}`);
-        
         const mainBucket: string = "user-files"
         const userFolder: string = `user-${userId}-files/`;
 
