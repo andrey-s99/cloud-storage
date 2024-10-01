@@ -30,7 +30,7 @@ export const HeroBlock = () => {
                 <Typography
                     variant="body2"
                 >
-                    <Link href="/sign-in">Sign In</Link> to start uploading and safely storing your files in the cloud.
+                    <Link href="/sign-in">Sign in</Link> to start uploading and safely storing your files in the cloud.
                 </Typography>
             </Box>
         </Box>

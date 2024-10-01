@@ -1,4 +1,4 @@
-import { Box, Button, TextField, Typography } from "@mui/material"
+import { Box, Button, Link, TextField, Typography } from "@mui/material"
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { FormEvent, useState } from "react";
 import axios, { AxiosError } from "axios";
@@ -144,6 +144,13 @@ export const SignInForm = () => {
                 >
                     Sign In
                 </Button>
+                <Typography
+                    variant="subtitle1"
+                    mt={2}
+                    fontSize={15}
+                >
+                    Don't have an account yet? <Link href="/sign-up">Sign up</Link>
+                </Typography>
             </Box>
     )
 }
