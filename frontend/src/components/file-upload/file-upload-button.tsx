@@ -1,5 +1,9 @@
 import { Button, styled } from "@mui/material"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { ChangeEvent } from "react";
+import axios from "axios";
+
+const apiUrl = import.meta.env.VITE_API_URL;
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -14,6 +18,31 @@ const VisuallyHiddenInput = styled('input')({
   });
 
 export const FileUploadButton = () => {
+    const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+        const files: FileList | null = e.target.files;
+        // Upload files one at a time
+        if (!files) {
+            console.log("No files uploaded!");
+            return;
+        }
+
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                await axios.post(
+                    `${apiUrl}/cloud/upload`, 
+                    formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    }}
+                );
+            } catch (err) {
+                console.log(err);
+            }
+        }   
+    }   
     return (
         <Button
             component="label"
@@ -26,7 +55,7 @@ export const FileUploadButton = () => {
             Upload files
             <VisuallyHiddenInput
                 type="file"
-                onChange={(event) => console.log(event.target.files)}
+                onChange={handleUpload}
                 multiple
             />
         </Button>
