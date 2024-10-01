@@ -2,8 +2,91 @@ import { Box, Breadcrumbs, Link } from "@mui/material"
 import { FileUploadButton } from "../../components/file-upload/file-upload-button"
 import Grid from '@mui/material/Grid2';
 import { FileCard } from "../../components/files/file-card";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const apiUrl = import.meta.env.VITE_API_URL;
+
+interface DataType {
+    username: string;
+    files?: string[];
+    folders?: string[];
+}
 
 export const FilesMenu = () => {
+    const [username, setUsername] = useState<string>('');
+    const [files, setFiles] = useState<string[] | undefined>(undefined);
+    const [folders, setFolders] = useState<string[] | undefined>(undefined);
+    const [path, setPath] = useState<string>('');
+
+    const [breadcrumbs, setBreadcrumbs] = useState<(JSX.Element | undefined)[]>([]);
+    const [fileCards, setFileCards] = useState<(JSX.Element | undefined)[]>([]);
+    //const [folderCards, setFolderCards] = useState<(JSX.Element | undefined)[]>([]);
+
+    useEffect(() => {
+        getUserData();
+    }, [path])
+
+    useEffect(() => {
+        setFileCards(() => {
+            return files ? files.map(f => {
+                return (
+                    <FileCard
+                        key={crypto.randomUUID()}
+                        name={f}
+                    >
+                    </FileCard>
+                )
+            }) : [];
+        });
+    }, [files]);
+
+    const handleBreadcrumbClick = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+        const fullPath = e.currentTarget.getAttribute("data-fullpath") as string;
+
+        setPath(fullPath);
+    }
+
+    const getUserData = async () => {
+        try {
+            const response = await axios.get(
+                `${apiUrl}/cloud?path=${path}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                }}
+            );
+
+            const data: DataType = response.data; 
+
+            setUsername(data.username);
+            setFiles(data.files);
+            setFolders(data.folders); 
+
+            setBreadcrumbs(() => {
+                let fullPath = '';
+                return path.split("/").map(sub => {
+                    if (sub !== "") {
+                        fullPath = fullPath + sub + '/';
+                        return (
+                            <Link 
+                                underline="hover"
+                                color="inherit"
+                                onClick={handleBreadcrumbClick}
+                                key={fullPath}
+                                data-fullpath={fullPath}
+                            >
+                                {sub}
+                            </Link>
+                        )
+                    }
+                });
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     return (
         <Box 
             sx={{ 
@@ -27,22 +110,9 @@ export const FilesMenu = () => {
                             color="inherit"
                             href="/"
                         >
-                            Home
+                            {username}
                         </Link>
-                        <Link
-                            underline="hover"
-                            color="inherit"
-                            href="/"
-                        >
-                            Pictures
-                        </Link>
-                        <Link
-                            underline="hover"
-                            color="text.primary"
-                            href="/"
-                        >
-                            Milan
-                        </Link>
+                        {breadcrumbs}
                     </Breadcrumbs>
                 </Grid>
                 <Grid size={{ xs: 0, sm: 1, md: 1, lg: 2, xl: 2 }}></Grid>
@@ -59,7 +129,7 @@ export const FilesMenu = () => {
                             gap: "10px"
                         }}
                     >
-                        <FileCard></FileCard>
+                        {fileCards}
                     </Box>
                 </Grid>
                 <Grid size={{ xs: 0, sm: 1, md: 1, lg: 2, xl: 2 }}></Grid>

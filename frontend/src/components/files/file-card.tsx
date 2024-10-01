@@ -3,7 +3,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 //import PreviewIcon from '@mui/icons-material/Preview';
 
-export const FileCard = () => {
+interface FileCardType {
+    name: string;
+}
+
+export const FileCard = ({ name }: FileCardType) => {
     return (
         <Card sx={{
             flexGrow: "1",
@@ -14,7 +18,7 @@ export const FileCard = () => {
                     variant="body2"
                     gutterBottom
                 >
-                    MyBook.pdf
+                    {name}
                 </Typography>
             </CardContent>
             <CardActions sx={{

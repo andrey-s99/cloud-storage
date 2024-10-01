@@ -4,7 +4,8 @@ import { Client, BucketItem } from "minio";
 
 interface ReturnType {
     username: string;
-    files: { name: string | undefined; }[] | null;
+    files?: string[];
+    folders?: string[];
 }
 
 @Injectable()
@@ -55,7 +56,7 @@ export class MinioService {
         const filesData: BucketItem[] = [];
 
         return new Promise((resolve, reject) => {
-            const filesStream = this.minioClient.listObjects(mainBucket, userFolder, true);
+            const filesStream = this.minioClient.listObjects(mainBucket, userFolder, false);
 
             filesStream.on('data', (fileObj) => {
                 filesData.push(fileObj);
@@ -64,11 +65,15 @@ export class MinioService {
             filesStream.on('end', () => {
                 const result: ReturnType = {
                     username: username,
-                    files: null
+                    files: [],
+                    folders: []
                 };
-                result.files = filesData.map(file => ({
-                    name: file.name
-                }));
+
+                filesData.forEach(file => {
+                    if (file?.name) result.files?.push(file.name.replace(userFolder, ''));
+                    else if (file?.prefix) result.folders?.push(file.prefix.replace(userFolder, ''));
+                });
+
                 resolve(result);
             });
 
