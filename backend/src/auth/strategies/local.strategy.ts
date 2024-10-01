@@ -22,7 +22,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         if (!await bcrypt.compare(password, user.password)) {
             throw new UnauthorizedException('Incorrect password.');
         }
-
-        return new UserSignInDto(user.username, user.id);
+        
+        return { username: user.username, id: user.id };
     }
 }

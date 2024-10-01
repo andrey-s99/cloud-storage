@@ -35,6 +35,7 @@ export const FileUploadButton = () => {
                     `${apiUrl}/cloud/upload`, 
                     formData, {
                     headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
                         "Content-Type": "multipart/form-data",
                     }}
                 );
