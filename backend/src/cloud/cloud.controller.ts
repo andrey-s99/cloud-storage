@@ -10,7 +10,7 @@ export class CloudController {
     @UseGuards(JwtAuthGuard)
     @Get('')
     async getCloud(@Request() req: any) {
-
+        return await this.cloudService.getUserFiles(req.user.username, req.user.userId);
     }
 
     @HttpCode(201)

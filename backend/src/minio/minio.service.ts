@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectMinio } from "nestjs-minio";
-import { Client } from "minio";
-import { PassThrough } from "stream";
+import { Client, BucketItem } from "minio";
+
+interface ReturnType {
+    username: string;
+    files: { name: string | undefined; }[] | null;
+}
 
 @Injectable()
 export class MinioService {
@@ -40,5 +44,37 @@ export class MinioService {
                 'Content-Type': `${file.mimetype}`
             }    
         );
+    }
+
+    async getFiles(username: string, userId: number) {
+        console.log(`Getting files for ${username}`);
+        
+        const mainBucket: string = "user-files"
+        const userFolder: string = `user-${userId}-files/`;
+
+        const filesData: BucketItem[] = [];
+
+        return new Promise((resolve, reject) => {
+            const filesStream = this.minioClient.listObjects(mainBucket, userFolder, true);
+
+            filesStream.on('data', (fileObj) => {
+                filesData.push(fileObj);
+            })
+    
+            filesStream.on('end', () => {
+                const result: ReturnType = {
+                    username: username,
+                    files: null
+                };
+                result.files = filesData.map(file => ({
+                    name: file.name
+                }));
+                resolve(result);
+            });
+
+            filesStream.on(`error`, (err) => {
+                reject(err);
+            })
+        })
     }
 }
