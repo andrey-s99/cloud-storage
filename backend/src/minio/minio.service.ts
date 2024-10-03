@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
-import { strict } from "assert";
 
 interface ReturnType {
     username: string;
@@ -86,7 +85,30 @@ export class MinioService {
         const mainBucket: string = "user-files"
         const pathToFile: string = `user-${userId}-files/` + path;
 
-        await this.minioClient.removeObject(mainBucket, pathToFile);
+        // Get and delete all files from folder
+        if (pathToFile.endsWith('/')) {
+            const files = await new Promise((resolve, reject) => {
+                const filesStream = this.minioClient.listObjects(mainBucket, pathToFile, true);
+                const filesData: string[] = [];
+
+                filesStream.on('data', (fileObj) => {
+                    filesData.push(fileObj?.name ?? '');
+                })
+        
+                filesStream.on('end', () => {
+                    resolve(filesData);
+                });
+
+                filesStream.on(`error`, (err) => {
+                    reject(err);
+                })
+            });
+
+            await this.minioClient.removeObjects(mainBucket, files as any);
+        } else {
+            // Delete single file
+            await this.minioClient.removeObject(mainBucket, pathToFile);
+        }
 
         return;
     }

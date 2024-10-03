@@ -51,6 +51,7 @@ export const FilesMenu = () => {
                         name={f}
                         path={path}
                         setPath={setPath}
+                        refresh={getUserData}
                     >
                     </FolderCard>
                 )

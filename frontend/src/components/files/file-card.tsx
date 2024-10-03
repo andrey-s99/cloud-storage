@@ -29,6 +29,7 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
             console.log(err);
         }
     }
+    
     return (
         <Card sx={{
             flexGrow: "1",
