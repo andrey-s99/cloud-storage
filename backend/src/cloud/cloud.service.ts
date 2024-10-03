@@ -13,9 +13,9 @@ export class CloudService {
         }
     }
 
-    async getUserFiles(username: string, userId: number) {
+    async getUserFiles(username: string, userId: number, path: string) {
         try {
-            return await this.minioService.getFiles(username, userId);
+            return await this.minioService.getFiles(username, userId, path);
         } catch (err) {
             throw new InternalServerErrorException();
         }

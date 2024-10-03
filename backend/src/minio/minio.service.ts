@@ -47,9 +47,9 @@ export class MinioService {
         );
     }
 
-    async getFiles(username: string, userId: number) {
+    async getFiles(username: string, userId: number, path: string) {
         const mainBucket: string = "user-files"
-        const userFolder: string = `user-${userId}-files/`;
+        const userFolder: string = `user-${userId}-files/` + path;
 
         const filesData: BucketItem[] = [];
 
@@ -68,7 +68,7 @@ export class MinioService {
                 };
 
                 filesData.forEach(file => {
-                    if (file?.name) result.files?.push(file.name.replace(userFolder, ''));
+                    if (file?.name) result.files?.push(file.name.split('/').pop() ?? '');
                     else if (file?.prefix) result.folders?.push(file.prefix.replace(userFolder, ''));
                 });
 
