@@ -35,6 +35,8 @@ export const FilesMenu = () => {
                     <FileCard
                         key={crypto.randomUUID()}
                         name={f}
+                        refresh={getUserData}
+                        path={path}
                     >
                     </FileCard>
                 )
@@ -167,7 +169,7 @@ export const FilesMenu = () => {
                         alignItems: "center"
                     }}
                 >
-                    <FileUploadButton />
+                    <FileUploadButton path={path} refresh={getUserData}/>
                 </Grid>
                 <Grid size={{ xs: 0, sm: 1, md: 1, lg: 2, xl: 2 }}></Grid>
             </Grid>

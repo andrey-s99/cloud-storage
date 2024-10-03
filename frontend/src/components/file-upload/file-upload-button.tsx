@@ -2,12 +2,12 @@ import { Button, styled } from "@mui/material"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { ChangeEvent } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 interface FileUploadProps {
     path: string;
+    refresh: () => void;
 }
 
 const VisuallyHiddenInput = styled('input')({
@@ -22,9 +22,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
   });
 
-export const FileUploadButton = ({ path }: FileUploadProps) => {
-    const navigate = useNavigate();
-
+export const FileUploadButton = ({ path, refresh }: FileUploadProps) => {
     const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         const files: FileList | null = e.target.files;
         // Upload files one at a time
@@ -46,6 +44,8 @@ export const FileUploadButton = ({ path }: FileUploadProps) => {
                         "Content-Type": "multipart/form-data",
                     }}
                 );
+
+                refresh();
             } catch (err) {
                 console.log(err);
             }
