@@ -1,13 +1,22 @@
 import { IconButton, Card, CardActions, CardContent, Typography, CardActionArea } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import { Dispatch, SetStateAction } from "react";
 //import PreviewIcon from '@mui/icons-material/Preview';
 
 interface FolderCardType {
     name: string;
+    path: string,
+    setPath: Dispatch<SetStateAction<string>>;
 }
 
-export const FolderCard = ({ name }: FolderCardType) => {
+export const FolderCard = ({ name, path, setPath }: FolderCardType) => {
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+
+        setPath(path + name);
+    }
+    
     return (
         <Card 
             variant="outlined"
@@ -16,7 +25,9 @@ export const FolderCard = ({ name }: FolderCardType) => {
                 minWidth: "150px"
             }}
         >
-            <CardActionArea>
+            <CardActionArea
+                onClick={handleClick}
+            >
                 <CardContent>
                     <Typography
                         variant="body2"

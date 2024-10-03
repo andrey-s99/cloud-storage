@@ -47,6 +47,8 @@ export const FilesMenu = () => {
                     <FolderCard
                         key={crypto.randomUUID()}
                         name={f}
+                        path={path}
+                        setPath={setPath}
                     >
                     </FolderCard>
                 )
@@ -88,6 +90,9 @@ export const FilesMenu = () => {
                                 onClick={handleBreadcrumbClick}
                                 key={fullPath}
                                 data-fullpath={fullPath}
+                                sx={{
+                                    cursor: "pointer"
+                                }}
                             >
                                 {sub}
                             </Link>
@@ -121,7 +126,11 @@ export const FilesMenu = () => {
                         <Link 
                             underline="hover"
                             color="inherit"
-                            href="/"
+                            onClick={handleBreadcrumbClick}
+                            data-fullpath={''}
+                            sx={{
+                                cursor: "pointer"
+                            }}
                         >
                             {username}
                         </Link>
