@@ -83,7 +83,7 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
                         e.preventDefault();
                         const formData = new FormData(e.currentTarget);
                         const formProps = Object.fromEntries(formData);
-                        console.log(formProps.newName);
+                        
                         const pathToFile = path + name;
                         try {
                             await axios.patch(

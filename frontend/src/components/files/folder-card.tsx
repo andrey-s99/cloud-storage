@@ -98,7 +98,7 @@ export const FolderCard = ({ name, path, setPath, refresh }: FolderCardType) => 
                         e.preventDefault();
                         const formData = new FormData(e.currentTarget);
                         const formProps = Object.fromEntries(formData);
-                        console.log(formProps.newName);
+                        
                         const pathToFile = path + name;
                         try {
                             await axios.patch(

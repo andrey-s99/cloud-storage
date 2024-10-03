@@ -93,8 +93,6 @@ export class MinioService {
             pathEdit.pop();
             const pathToNewFolder: string = pathEdit.join('/') + '/' + newName + '/';
 
-            console.log(`Copying ${pathToFile} to ${pathToNewFolder}`);
-
             // Copy all files in the folder to a folder with the new name
             const files: string[] = await new Promise((resolve, reject) => {
                 const filesStream = this.minioClient.listObjects(mainBucket, pathToFile, true);
@@ -115,17 +113,17 @@ export class MinioService {
 
             for (const file of files) {
                 const fileName = file.split('/').pop();
-                console.log(`Copying ${mainBucket + '/' + file} to ${pathToNewFolder + fileName}`)
+
                 await this.minioClient.copyObject(mainBucket, pathToNewFolder + fileName, mainBucket + '/' + file);
             }
 
         } else {
             const pathToNewFile: string = pathEdit.join('/') + '/' + newName;
-            console.log(`Copying ${pathToFile} to ${pathToNewFile}`);
+
             await this.minioClient.copyObject(mainBucket, pathToNewFile, mainBucket + '/' + pathToFile);
         }
 
-        console.log(`Deleting ${pathToFile}`);
+
         // Delete old file
         await this.deleteFile(userId, path);
     }
