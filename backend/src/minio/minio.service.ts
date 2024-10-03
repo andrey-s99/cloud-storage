@@ -48,7 +48,7 @@ export class MinioService {
     }
 
     async getFiles(username: string, userId: number, path: string) {
-        const mainBucket: string = "user-files"
+        const mainBucket: string = "user-files";
         const userFolder: string = `user-${userId}-files/` + path;
 
         const filesData: BucketItem[] = [];
@@ -81,8 +81,30 @@ export class MinioService {
         })
     }
 
+    async renameFile(userId: number, path: string, newName: string) {
+        const mainBucket: string = "user-files";
+        const pathToFile: string = `user-${userId}-files/` + path;
+        const pathEdit = pathToFile.split('/');
+        pathEdit.pop();
+        const pathToNewFile: string = pathEdit.join('/') + '/' + newName;
+
+        console.log(`Copying ${pathToFile} to ${pathToNewFile}`);
+        // // Copy file with the new name
+        // if (pathToFile.endsWith('/')) {
+        //     await this.minioClient.copyObject(mainBucket, newName, pathToFile);
+        // } else {
+        //     await this.minioClient.copyObject(mainBucket, newName, pathToFile);
+        // }
+
+        await this.minioClient.copyObject(mainBucket, pathToNewFile, mainBucket + '/' + pathToFile);
+
+        console.log(`Deleting ${pathToFile}`);
+        // Delete old file
+        await this.deleteFile(userId, path);
+    }
+
     async deleteFile(userId: number, path: string) {
-        const mainBucket: string = "user-files"
+        const mainBucket: string = "user-files";
         const pathToFile: string = `user-${userId}-files/` + path;
 
         // Get and delete all files from folder

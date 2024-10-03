@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, HttpCode, Patch, Post, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Patch, Post, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { CloudService } from "./cloud.service";
@@ -25,9 +25,9 @@ export class CloudController {
     @HttpCode(200)
     @UseGuards(JwtAuthGuard)
     @Patch()
-    async editFile(@Request() req: any)
+    async renameFile(@Request() req: any, @Body('path') path: string, @Body('newName') newName: string)
     {
-
+        return await this.cloudService.renameFile(req.user.userId, path, newName)
     }
 
     @HttpCode(200)

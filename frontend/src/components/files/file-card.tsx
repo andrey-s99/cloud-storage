@@ -13,6 +13,29 @@ interface FileCardType {
 }
 
 export const FileCard = ({ name, path, refresh }: FileCardType) => {
+
+    const handleEdit = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+
+        const pathToFile = path + name;
+        try {
+            await axios.patch(
+                `${apiUrl}/cloud`,
+                {
+                    path: pathToFile,
+                    newName: 'aboba',
+                }, 
+                {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                }}
+            );
+            refresh();
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
 
@@ -47,7 +70,10 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
                 display: "flex",
                 justifyContent: "flex-end"
             }}>
-                <IconButton  size="small">
+                <IconButton  
+                    size="small"
+                    onClick={handleEdit}
+                >
                     <EditIcon fontSize="small"/>
                 </IconButton >
                 <IconButton  

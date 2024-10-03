@@ -21,6 +21,15 @@ export class CloudService {
         }
     }
 
+    async renameFile(userId: number, path: string, newName: string) {
+        try {
+            return await this.minioService.renameFile(userId, path, newName);
+        } catch(err) {
+            console.log(err);
+            throw new InternalServerErrorException();
+        }
+    }
+
     async deleteFile(userId: number, path: string) {
         try {
             return await this.minioService.deleteFile(userId, path);
