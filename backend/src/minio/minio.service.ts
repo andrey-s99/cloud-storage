@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
+import { strict } from "assert";
 
 interface ReturnType {
     username: string;
@@ -22,9 +23,9 @@ export class MinioService {
     //     uploaded by user with id ${userId}`
     // );
 
-    async uploadFile(file: Express.Multer.File, userId: number) {
+    async uploadFile(file: Express.Multer.File, userId: number, path: string) {
         const mainBucket: string = "user-files"
-        const userFolder: string = `user-${userId}-files/`;
+        const userFolder: string = `user-${userId}-files/${path}`;
 
         // Check if the user-files bucket exists
         const isUserFilesExists = await this.minioClient.bucketExists(mainBucket);
@@ -79,5 +80,14 @@ export class MinioService {
                 reject(err);
             })
         })
+    }
+
+    async deleteFile(userId: number, path: string) {
+        const mainBucket: string = "user-files"
+        const pathToFile: string = `user-${userId}-files/` + path;
+
+        await this.minioClient.removeObject(mainBucket, pathToFile);
+
+        return;
     }
 }

@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+interface FileUploadProps {
+    path: string;
+}
+
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -18,7 +22,7 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
   });
 
-export const FileUploadButton = () => {
+export const FileUploadButton = ({ path }: FileUploadProps) => {
     const navigate = useNavigate();
 
     const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -35,15 +39,13 @@ export const FileUploadButton = () => {
 
             try {
                 await axios.post(
-                    `${apiUrl}/cloud/upload`, 
+                    `${apiUrl}/cloud/upload?path=${path}`, 
                     formData, {
                     headers: {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`,
                         "Content-Type": "multipart/form-data",
                     }}
                 );
-
-                navigate("/");
             } catch (err) {
                 console.log(err);
             }

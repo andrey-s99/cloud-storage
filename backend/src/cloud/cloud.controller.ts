@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Post, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Controller, Delete, Get, HttpCode, Patch, Post, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { CloudService } from "./cloud.service";
@@ -7,6 +7,7 @@ import { CloudService } from "./cloud.service";
 export class CloudController {
     constructor(private cloudService: CloudService) {}
 
+    @HttpCode(200)
     @UseGuards(JwtAuthGuard)
     @Get()
     async getCloud(@Request() req: any, @Query('path') path: string) {
@@ -17,7 +18,22 @@ export class CloudController {
     @UseGuards(JwtAuthGuard)
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: Express.Multer.File, @Request() req: any) {
-        return await this.cloudService.uploadFile(file, req.user.userId);
+    async uploadFile(@UploadedFile() file: Express.Multer.File, @Request() req: any, @Query('path') path: string) {
+        return await this.cloudService.uploadFile(file, req.user.userId, path);
+    }
+
+    @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
+    @Patch()
+    async editFile(@Request() req: any)
+    {
+
+    }
+
+    @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
+    @Delete()
+    async deleteFile(@Request() req: any, @Query('path') path: string) {
+        return await this.cloudService.deleteFile(req.user.userId, path);
     }
 }
