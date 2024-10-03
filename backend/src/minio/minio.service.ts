@@ -35,7 +35,6 @@ export class MinioService {
         }
 
         // Upload file to user's folder
-        // TODO: Add custom path support
         await this.minioClient.putObject(
             mainBucket, 
             userFolder + `${file.originalname}`,

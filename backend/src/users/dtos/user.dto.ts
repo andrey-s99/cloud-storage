@@ -1,6 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsNotEmpty, IsOptional } from "class-validator";
-import { validateHeaderValue } from "http";
+import { IsNotEmpty } from "class-validator";
 
 export class UserDto {
     @IsNotEmpty()

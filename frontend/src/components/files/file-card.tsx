@@ -1,4 +1,4 @@
-import { IconButton, Card, CardActions, CardContent, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, Button } from "@mui/material"
+import { IconButton, Card, CardActions, CardContent, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, Button, DialogActions } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from "axios";
@@ -120,8 +120,10 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
                     variant="standard"
                 />
             </DialogContent>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button type="submit">Apply</Button>
+            <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button type="submit">Apply</Button>
+            </DialogActions>
             </Dialog>
         </>
     )

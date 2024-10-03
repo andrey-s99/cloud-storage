@@ -1,4 +1,4 @@
-import { IconButton, Card, CardActions, CardContent, Typography, CardActionArea, Dialog, DialogTitle, DialogContent, DialogContentText, Button, TextField } from "@mui/material"
+import { IconButton, Card, CardActions, CardContent, Typography, CardActionArea, Dialog, DialogTitle, DialogContent, DialogContentText, Button, TextField, DialogActions } from "@mui/material"
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
@@ -135,8 +135,10 @@ export const FolderCard = ({ name, path, setPath, refresh }: FolderCardType) => 
                         variant="standard"
                     />
                 </DialogContent>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button type="submit">Apply</Button>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button type="submit">Apply</Button>
+                </DialogActions>
             </Dialog>
         </>
     )
