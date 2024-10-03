@@ -86,17 +86,44 @@ export class MinioService {
         const pathToFile: string = `user-${userId}-files/` + path;
         const pathEdit = pathToFile.split('/');
         pathEdit.pop();
-        const pathToNewFile: string = pathEdit.join('/') + '/' + newName;
 
-        console.log(`Copying ${pathToFile} to ${pathToNewFile}`);
-        // // Copy file with the new name
-        // if (pathToFile.endsWith('/')) {
-        //     await this.minioClient.copyObject(mainBucket, newName, pathToFile);
-        // } else {
-        //     await this.minioClient.copyObject(mainBucket, newName, pathToFile);
-        // }
+        // Copy file with the new name
+        if (pathToFile.endsWith('/')) {
+            // Pop the old folder name
+            pathEdit.pop();
+            const pathToNewFolder: string = pathEdit.join('/') + '/' + newName + '/';
 
-        await this.minioClient.copyObject(mainBucket, pathToNewFile, mainBucket + '/' + pathToFile);
+            console.log(`Copying ${pathToFile} to ${pathToNewFolder}`);
+
+            // Copy all files in the folder to a folder with the new name
+            const files: string[] = await new Promise((resolve, reject) => {
+                const filesStream = this.minioClient.listObjects(mainBucket, pathToFile, true);
+                const filesData: string[] = [];
+
+                filesStream.on('data', (fileObj) => {
+                    filesData.push(fileObj?.name ?? '');
+                })
+        
+                filesStream.on('end', () => {
+                    resolve(filesData);
+                });
+
+                filesStream.on(`error`, (err) => {
+                    reject(err);
+                })
+            });
+
+            for (const file of files) {
+                const fileName = file.split('/').pop();
+                console.log(`Copying ${mainBucket + '/' + file} to ${pathToNewFolder + fileName}`)
+                await this.minioClient.copyObject(mainBucket, pathToNewFolder + fileName, mainBucket + '/' + file);
+            }
+
+        } else {
+            const pathToNewFile: string = pathEdit.join('/') + '/' + newName;
+            console.log(`Copying ${pathToFile} to ${pathToNewFile}`);
+            await this.minioClient.copyObject(mainBucket, pathToNewFile, mainBucket + '/' + pathToFile);
+        }
 
         console.log(`Deleting ${pathToFile}`);
         // Delete old file
