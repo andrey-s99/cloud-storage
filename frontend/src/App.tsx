@@ -22,7 +22,7 @@ function App() {
             <Header setSearchResults={setSearchResults}/>
               <Routes>
                   <Route path="/" element={<Navigate to="/cloud"/>} />
-                  <Route path="/cloud" element={<HomePage searchResults={searchResults}/>} />
+                  <Route path="/cloud" element={<HomePage searchResults={searchResults} setSearchResults={setSearchResults}/>} />
                   <Route path="/sign-in" element={<AuthPage authForm={<SignInForm />} />} />
                   <Route path="/sign-up" element={<AuthPage authForm={<SignUpForm />} />} />
               </Routes>

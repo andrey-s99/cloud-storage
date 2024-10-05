@@ -6,15 +6,16 @@ import { SearchResults } from "../search-results/search-results";
 
 interface HomePageProps {
     searchResults: string[];
+    setSearchResults: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export const HomePage = ({ searchResults }: HomePageProps) => {
+export const HomePage = ({ searchResults, setSearchResults }: HomePageProps) => {
     const { isAuthenticated } = useAuth();
     const [homeBody, setHomeBody] = useState(<FilesMenu />);
 
     useEffect(() => {
         if (searchResults.length) {
-            setHomeBody(<SearchResults searchResults={searchResults}/>)
+            setHomeBody(<SearchResults searchResults={searchResults} setSearchResults={setSearchResults}/>)
         } else {
             setHomeBody(<FilesMenu />)
         }

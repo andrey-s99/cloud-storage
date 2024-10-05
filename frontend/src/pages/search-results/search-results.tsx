@@ -6,24 +6,28 @@ import Grid from '@mui/material/Grid2';
 
 interface SearchResultsProps {
     searchResults: string[];
+    setSearchResults: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-export const SearchResults = ({ searchResults }: SearchResultsProps) => {
+export const SearchResults = ({ searchResults, setSearchResults }: SearchResultsProps) => {
     const [files, setFiles] = useState<(JSX.Element | undefined)[]>([]);
     const navigate = useNavigate();
 
     const refresh = () => {
+        setSearchResults([]);
         navigate("/");
     }
 
     useEffect(() => {
         setFiles(() => {
             return searchResults.map((result) => {
-                const name = result.split('/').pop() ?? '';
+                const resultEdit = result.split('/');
+                const name = resultEdit.pop() ?? '';
+                const path = resultEdit.join("/") + '/';
                 return(
                     <FileCard
                         name={name}
-                        path={result}
+                        path={path}
                         refresh={refresh}
                         key={crypto.randomUUID()}
                     >
