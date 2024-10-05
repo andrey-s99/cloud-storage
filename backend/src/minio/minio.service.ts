@@ -105,7 +105,7 @@ export class MinioService {
             })
         })
 
-        return result.filter((file) => file.search(query) !== -1)
+        return result.filter((file) => file?.split('/')?.pop()?.search(query) !== -1)
     }
 
     async renameFile(userId: number, path: string, newName: string) {
