@@ -24,6 +24,7 @@ export class CloudController {
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
     async uploadFile(@UploadedFile() file: Express.Multer.File, @Request() req: any, @Query('path') path: string, @Body('relativePath') relativePath: string) {
+        // relativePath is used for folder uploads; It is empty for file uploads
         return await this.cloudService.uploadFile(file, req.user.userId, path, relativePath);
     }
 

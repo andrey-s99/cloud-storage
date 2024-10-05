@@ -15,14 +15,6 @@ export class MinioService {
         @InjectMinio() private readonly minioClient: Client
     ) {}
 
-    // console.log(`
-    //     ${file.originalname} 
-    //     ${file.mimetype} 
-    //     ${file.size} 
-    //     ${file.buffer} 
-    //     uploaded by user with id ${userId}`
-    // );
-
     async uploadFile(file: Express.Multer.File, userId: number, path: string, relativePath: string) {
         const userFolder: string = `user-${userId}-files/${path}`;
 
