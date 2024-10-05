@@ -1,12 +1,16 @@
-import { AppBar, Box, Toolbar, Button } from "@mui/material"
+import { AppBar, Box, Toolbar, Button, useMediaQuery, useTheme } from "@mui/material"
 import CloudIcon from '@mui/icons-material/Cloud';
 import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/auth-context";
 import { useNavigate } from "react-router-dom";
+import { SearchField } from "../search/search-field";
 
 export const Header = () => {
     const [headerMenu, setHeaderMenu] = useState(<></>);
     const { isAuthenticated, setIsAuthenticated } = useAuth();
+
+    const theme = useTheme();
+    const isSm = useMediaQuery(theme.breakpoints.up('sm'));
 
     const navigate = useNavigate();
 
@@ -20,24 +24,29 @@ export const Header = () => {
     useEffect(() => {
         setHeaderMenu(
             isAuthenticated ? (
-                <Button 
-                    onClick={handleSignout}
-                    sx={{
-                        color: "white"
-                    }}
-                >Sign Out</Button>
+                <>
+                    <Button 
+                        onClick={handleSignout}
+                        sx={{
+                            color: "white",
+                            fontSize: { xs: '0.63rem', sm: '0.9rem'}
+                        }}
+                    >Sign Out</Button>
+                </>
             ) : (
                 <>
                     <Button 
                         href="/sign-in"
                         sx={{
-                            color: "white"
+                            color: "white",
+                            fontSize: { xs: '0.63rem', sm: '0.9rem'}
                         }}
                     >Sign In</Button>
                     <Button 
                         href="/sign-up"
                         sx={{
-                            color: "white"
+                            color: "white",
+                            fontSize: { xs: '0.63rem', sm: '0.9rem'}
                         }}
                     >Sign Up</Button>
                 </>
@@ -54,11 +63,12 @@ export const Header = () => {
                         variant="contained"
                         startIcon={<CloudIcon />}
                         sx={{
-                            color: "white"
+                            color: "white",
                         }}
                     >
-                        My cloud
+                        {isSm && 'My Cloud'}
                     </Button>
+                        {isAuthenticated && <SearchField></SearchField>}
                     <Box >
                         {headerMenu}
                     </Box>
