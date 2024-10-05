@@ -1,5 +1,7 @@
 import { alpha, InputBase, styled } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
+import { ChangeEvent } from "react";
+import axios from "axios";
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -42,7 +44,34 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export const SearchField = () => {
+const apiUrl = import.meta.env.VITE_API_URL;
+
+interface SearchFieldProps {
+  setSearchResults: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const SearchField = ({ setSearchResults }: SearchFieldProps) => {
+  const handleSearch = async (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const query = e.target.value;
+
+    if (query === '') {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `${apiUrl}/cloud/search?query=${query}`, {
+          headers: {
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }}
+      );
+      setSearchResults(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   return (
     <Search>
       <SearchIconWrapper>
@@ -51,6 +80,7 @@ export const SearchField = () => {
       <StyledInputBase
         placeholder="Search…"
         inputProps={{ 'aria-label': 'search' }}
+        onChange={handleSearch}
       />
     </Search>
   )

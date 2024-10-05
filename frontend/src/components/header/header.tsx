@@ -5,7 +5,11 @@ import { useAuth } from "../../contexts/auth-context";
 import { useNavigate } from "react-router-dom";
 import { SearchField } from "../search/search-field";
 
-export const Header = () => {
+interface HeaderProps {
+    setSearchResults: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const Header = ({ setSearchResults }: HeaderProps) => {
     const [headerMenu, setHeaderMenu] = useState(<></>);
     const { isAuthenticated, setIsAuthenticated } = useAuth();
 
@@ -68,7 +72,7 @@ export const Header = () => {
                     >
                         {isSm && 'My Cloud'}
                     </Button>
-                        {isAuthenticated && <SearchField></SearchField>}
+                        {isAuthenticated && <SearchField setSearchResults={setSearchResults}></SearchField>}
                     <Box >
                         {headerMenu}
                     </Box>
