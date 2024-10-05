@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/auth-context";
 import { useNavigate } from "react-router-dom";
 import { SearchField } from "../search/search-field";
+import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 interface HeaderProps {
     setSearchResults: React.Dispatch<React.SetStateAction<string[]>>;
@@ -33,9 +36,10 @@ export const Header = ({ setSearchResults }: HeaderProps) => {
                         onClick={handleSignout}
                         sx={{
                             color: "white",
-                            fontSize: { xs: '0.63rem', sm: '0.9rem'}
                         }}
-                    >Sign Out</Button>
+                    >
+                        {isSm && 'Sign Out' || <LogoutIcon/>}
+                    </Button>
                 </>
             ) : (
                 <>
@@ -43,20 +47,23 @@ export const Header = ({ setSearchResults }: HeaderProps) => {
                         href="/sign-in"
                         sx={{
                             color: "white",
-                            fontSize: { xs: '0.63rem', sm: '0.9rem'}
+
                         }}
-                    >Sign In</Button>
+                    >
+                        {isSm && 'Sign In' || <LoginIcon/>}
+                    </Button>
                     <Button 
                         href="/sign-up"
                         sx={{
                             color: "white",
-                            fontSize: { xs: '0.63rem', sm: '0.9rem'}
                         }}
-                    >Sign Up</Button>
+                    >
+                        {isSm && 'Sign Up' || <PersonAddIcon/>}
+                    </Button>
                 </>
             )
         );
-    }, [isAuthenticated]);
+    }, [isAuthenticated, isSm]);
 
     return (
         <Box >
