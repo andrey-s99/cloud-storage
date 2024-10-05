@@ -13,6 +13,8 @@ const Search = styled('div')(({ theme }) => ({
     marginRight: theme.spacing(2),
     marginLeft: 0,
     width: '100%',
+    display: 'flex', // Add this to make it a flex container
+    alignItems: 'center', // Align items vertically centered
     [theme.breakpoints.up('xs')]: {
       marginLeft: theme.spacing(3),
       width: 'auto',
@@ -32,15 +34,19 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  paddingLeft: `calc(1em + ${theme.spacing(4)})`, // Padding for the search icon
+  width: '100%', // Ensure full width
+  // Add the following to control the height and ensure it's not squished
+  height: '100%',
   '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
+      padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+      paddingLeft: 0, // Remove extra padding here
+      transition: theme.transitions.create('width'),
+      width: '100%', // Full width of the input
+      [theme.breakpoints.up('md')]: {
+          width: '100%',
+      },
   },
 }));
 
