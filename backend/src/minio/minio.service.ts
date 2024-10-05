@@ -51,7 +51,7 @@ export class MinioService {
 
         const filesData: BucketItem[] = [];
 
-        await new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             const filesStream = this.minioClient.listObjects(this.mainBucket, userFolder, false);
 
             filesStream.on('data', (fileObj) => {
