@@ -3,13 +3,14 @@ import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
 
 interface ReturnType {
-    username: string;
+    username?: string;
     files?: string[];
     folders?: string[];
 }
 
 @Injectable()
 export class MinioService {
+    private mainBucket: string = `user-files`
     constructor(
         @InjectMinio() private readonly minioClient: Client
     ) {}
@@ -23,20 +24,19 @@ export class MinioService {
     // );
 
     async uploadFile(file: Express.Multer.File, userId: number, path: string) {
-        const mainBucket: string = "user-files"
         const userFolder: string = `user-${userId}-files/${path}`;
 
         // Check if the user-files bucket exists
-        const isUserFilesExists = await this.minioClient.bucketExists(mainBucket);
+        const isUserFilesExists = await this.minioClient.bucketExists(this.mainBucket);
 
         // Create user-files bucket if necessary
         if (!isUserFilesExists) {
-            await this.minioClient.makeBucket(mainBucket);
+            await this.minioClient.makeBucket(this.mainBucket);
         }
 
         // Upload file to user's folder
         await this.minioClient.putObject(
-            mainBucket, 
+            this.mainBucket, 
             userFolder + `${file.originalname}`,
             file.buffer,
             file.size,
@@ -47,13 +47,12 @@ export class MinioService {
     }
 
     async getFiles(username: string, userId: number, path: string) {
-        const mainBucket: string = "user-files";
         const userFolder: string = `user-${userId}-files/` + path;
 
         const filesData: BucketItem[] = [];
 
-        return new Promise((resolve, reject) => {
-            const filesStream = this.minioClient.listObjects(mainBucket, userFolder, false);
+        await new Promise((resolve, reject) => {
+            const filesStream = this.minioClient.listObjects(this.mainBucket, userFolder, false);
 
             filesStream.on('data', (fileObj) => {
                 filesData.push(fileObj);
@@ -80,8 +79,36 @@ export class MinioService {
         })
     }
 
+    async searchFiles(userId: number, query: string) {
+        const userFolder: string = `user-${userId}-files/`
+
+        const result: string[] = await new Promise((resolve, reject) => {
+            const filesStream = this.minioClient.listObjects(this.mainBucket, userFolder, true);
+            const filesData: BucketItem[] = [];
+
+            filesStream.on('data', (fileObj) => {
+                filesData.push(fileObj);
+            })
+    
+            filesStream.on('end', () => {
+                const result: string[] = [];
+
+                filesData.forEach(file => {
+                    if (file?.name) result.push(file.name.replace(userFolder, ''));
+                });
+
+                resolve(result);
+            });
+
+            filesStream.on(`error`, (err) => {
+                reject(err);
+            })
+        })
+
+        return result.filter((file) => file.search(query) !== -1)
+    }
+
     async renameFile(userId: number, path: string, newName: string) {
-        const mainBucket: string = "user-files";
         const pathToFile: string = `user-${userId}-files/` + path;
         const pathEdit = pathToFile.split('/');
         pathEdit.pop();
@@ -94,7 +121,7 @@ export class MinioService {
 
             // Copy all files in the folder to a folder with the new name
             const files: string[] = await new Promise((resolve, reject) => {
-                const filesStream = this.minioClient.listObjects(mainBucket, pathToFile, true);
+                const filesStream = this.minioClient.listObjects(this.mainBucket, pathToFile, true);
                 const filesData: string[] = [];
 
                 filesStream.on('data', (fileObj) => {
@@ -113,13 +140,13 @@ export class MinioService {
             for (const file of files) {
                 const fileName = file.split('/').pop();
 
-                await this.minioClient.copyObject(mainBucket, pathToNewFolder + fileName, mainBucket + '/' + file);
+                await this.minioClient.copyObject(this.mainBucket, pathToNewFolder + fileName, this.mainBucket + '/' + file);
             }
 
         } else {
             const pathToNewFile: string = pathEdit.join('/') + '/' + newName;
 
-            await this.minioClient.copyObject(mainBucket, pathToNewFile, mainBucket + '/' + pathToFile);
+            await this.minioClient.copyObject(this.mainBucket, pathToNewFile, this.mainBucket + '/' + pathToFile);
         }
 
 
@@ -128,13 +155,12 @@ export class MinioService {
     }
 
     async deleteFile(userId: number, path: string) {
-        const mainBucket: string = "user-files";
         const pathToFile: string = `user-${userId}-files/` + path;
 
         // Get and delete all files from folder
         if (pathToFile.endsWith('/')) {
             const files = await new Promise((resolve, reject) => {
-                const filesStream = this.minioClient.listObjects(mainBucket, pathToFile, true);
+                const filesStream = this.minioClient.listObjects(this.mainBucket, pathToFile, true);
                 const filesData: string[] = [];
 
                 filesStream.on('data', (fileObj) => {
@@ -150,10 +176,10 @@ export class MinioService {
                 })
             });
 
-            await this.minioClient.removeObjects(mainBucket, files as any);
+            await this.minioClient.removeObjects(this.mainBucket, files as any);
         } else {
             // Delete single file
-            await this.minioClient.removeObject(mainBucket, pathToFile);
+            await this.minioClient.removeObject(this.mainBucket, pathToFile);
         }
 
         return;

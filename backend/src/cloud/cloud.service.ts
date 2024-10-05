@@ -21,6 +21,14 @@ export class CloudService {
         }
     }
 
+    async searchFiles(userId: number, query: string) {
+        try {
+            return await this.minioService.searchFiles(userId, query);
+        } catch (err) {
+            throw new InternalServerErrorException();
+        }
+    }
+
     async renameFile(userId: number, path: string, newName: string) {
         try {
             return await this.minioService.renameFile(userId, path, newName);

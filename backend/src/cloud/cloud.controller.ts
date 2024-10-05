@@ -14,6 +14,13 @@ export class CloudController {
         return await this.cloudService.getUserFiles(req.user.username, req.user.userId, path);
     }
 
+    @HttpCode(200)
+    @UseGuards(JwtAuthGuard)
+    @Get('search')
+    async searchFiles(@Request() req: any, @Query('query') query: string) {
+        return await this.cloudService.searchFiles(req.user.userId, query);
+    }
+
     @HttpCode(201)
     @UseGuards(JwtAuthGuard)
     @Post('upload')
