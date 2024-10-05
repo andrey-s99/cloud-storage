@@ -23,8 +23,10 @@ export class MinioService {
     //     uploaded by user with id ${userId}`
     // );
 
-    async uploadFile(file: Express.Multer.File, userId: number, path: string) {
+    async uploadFile(file: Express.Multer.File, userId: number, path: string, relativePath: string) {
         const userFolder: string = `user-${userId}-files/${path}`;
+
+        const fileName = relativePath !== "" ? relativePath : file.originalname;
 
         // Check if the user-files bucket exists
         const isUserFilesExists = await this.minioClient.bucketExists(this.mainBucket);
@@ -37,7 +39,7 @@ export class MinioService {
         // Upload file to user's folder
         await this.minioClient.putObject(
             this.mainBucket, 
-            userFolder + `${file.originalname}`,
+            userFolder + `${fileName}`,
             file.buffer,
             file.size,
             {

@@ -23,8 +23,8 @@ export class CloudController {
     @HttpCode(201)
     @Post('upload')
     @UseInterceptors(FileInterceptor('file'))
-    async uploadFile(@UploadedFile() file: Express.Multer.File, @Request() req: any, @Query('path') path: string) {
-        return await this.cloudService.uploadFile(file, req.user.userId, path);
+    async uploadFile(@UploadedFile() file: Express.Multer.File, @Request() req: any, @Query('path') path: string, @Body('relativePath') relativePath: string) {
+        return await this.cloudService.uploadFile(file, req.user.userId, path, relativePath);
     }
 
     @HttpCode(200)

@@ -5,9 +5,9 @@ import { MinioService } from "src/minio/minio.service";
 export class CloudService {
     constructor(private minioService: MinioService) {}
 
-    async uploadFile(file: Express.Multer.File, userId: number, path: string) {
+    async uploadFile(file: Express.Multer.File, userId: number, path: string, relativePath: string) {
         try {
-            return await this.minioService.uploadFile(file, userId, path);
+            return await this.minioService.uploadFile(file, userId, path, relativePath);
         } catch (err) {
             throw new InternalServerErrorException();
         }

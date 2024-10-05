@@ -1,7 +1,15 @@
-import { Button, styled } from "@mui/material"
+import { Box, Button } from "@mui/material"
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { ChangeEvent } from "react";
 import axios from "axios";
+
+declare module 'react' {
+    interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
+      // extends React's HTMLAttributes
+      directory?: string;
+      webkitdirectory?: string;
+    }
+  }
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -9,18 +17,6 @@ interface FileUploadProps {
     path: string;
     refresh: () => void;
 }
-
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
 
 export const FileUploadButton = ({ path, refresh }: FileUploadProps) => {
     const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +30,7 @@ export const FileUploadButton = ({ path, refresh }: FileUploadProps) => {
         for (const file of files) {
             const formData = new FormData();
             formData.append("file", file);
+            formData.append("relativePath", file.webkitRelativePath);
 
             try {
                 await axios.post(
@@ -52,20 +49,49 @@ export const FileUploadButton = ({ path, refresh }: FileUploadProps) => {
         }   
     }   
     return (
-        <Button
-            component="label"
-            variant="contained"
-            startIcon={<CloudUploadIcon />}
-            sx={{
-                width: "100%"
-            }}
-        >
-            Upload files
-            <VisuallyHiddenInput
-                type="file"
-                onChange={handleUpload}
-                multiple
-            />
-        </Button>
+        <Box sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            width: "100%"
+        }}>
+            <Button
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+                sx={{
+                    width: "100%"
+                }}
+            >
+                Upload files
+                <input
+                    type="file"
+                    accept="*/*"
+                    multiple
+                    hidden
+                    onChange={handleUpload}
+                >
+                </input>
+            </Button>
+            <Button
+                component="label"
+                variant="contained"
+                startIcon={<CloudUploadIcon />}
+                sx={{
+                    width: "100%"
+                }}
+            >
+                Upload folders
+                <input
+                    type="file"
+                    accept="*/*"
+                    multiple
+                    webkitdirectory=""
+                    hidden
+                    onChange={handleUpload}
+                >
+                </input>
+            </Button>
+        </Box>
     )
 }
