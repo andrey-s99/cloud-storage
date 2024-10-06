@@ -1,12 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
-
-interface GetFilesReturnType {
-    username?: string;
-    files?: string[];
-    folders?: string[];
-}
+import { GetFilesReturnType } from "src/cloud/cloud.controller";
 
 @Injectable()
 export class MinioService {
