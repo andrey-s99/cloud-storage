@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
 
-interface ReturnType {
+interface GetFilesReturnType {
     username?: string;
     files?: string[];
     folders?: string[];
@@ -40,66 +40,51 @@ export class MinioService {
         );
     }
 
+    private async getFilesData(userFolder: string, isRecursive: boolean): Promise<BucketItem[]> {
+        const filesData: BucketItem[] = [];
+
+        const filesStream = this.minioClient.listObjects(this.mainBucket, userFolder, isRecursive);
+
+        for await (const fileObj of filesStream) {
+            filesData.push(fileObj);
+        }
+
+        return filesData;
+    }
+
     async getFiles(username: string, userId: number, path: string) {
         const userFolder: string = `user-${userId}-files/` + path;
 
-        const filesData: BucketItem[] = [];
+        const filesData: BucketItem[] = await this.getFilesData(userFolder, false);
 
-        return new Promise((resolve, reject) => {
-            const filesStream = this.minioClient.listObjects(this.mainBucket, userFolder, false);
-
-            filesStream.on('data', (fileObj) => {
-                filesData.push(fileObj);
-            })
+        const result: GetFilesReturnType = {
+                        username: username,
+                        files: [],
+                        folders: []
+        };
     
-            filesStream.on('end', () => {
-                const result: ReturnType = {
-                    username: username,
-                    files: [],
-                    folders: []
-                };
+        filesData.forEach(file => {
+            if (file?.name) result.files?.push(file.name.split('/').pop() ?? '');
+            else if (file?.prefix) result.folders?.push(file.prefix.replace(userFolder, ''));
+        });
 
-                filesData.forEach(file => {
-                    if (file?.name) result.files?.push(file.name.split('/').pop() ?? '');
-                    else if (file?.prefix) result.folders?.push(file.prefix.replace(userFolder, ''));
-                });
-
-                resolve(result);
-            });
-
-            filesStream.on(`error`, (err) => {
-                reject(err);
-            })
-        })
+        return result;
     }
 
-    async searchFiles(userId: number, query: string) {
+    async searchFiles(userId: number, query: string): Promise<string[]> {
         const userFolder: string = `user-${userId}-files/`
 
-        const result: string[] = await new Promise((resolve, reject) => {
-            const filesStream = this.minioClient.listObjects(this.mainBucket, userFolder, true);
-            const filesData: BucketItem[] = [];
+        const filesData: BucketItem[] = await this.getFilesData(userFolder, true);
 
-            filesStream.on('data', (fileObj) => {
-                filesData.push(fileObj);
-            })
-    
-            filesStream.on('end', () => {
-                const result: string[] = [];
+        const result: string[] = [];
 
-                filesData.forEach(file => {
-                    if (file?.name) result.push(file.name.replace(userFolder, ''));
-                });
+        filesData.forEach(file => {
+            if (file?.name) {
+                result.push(file.name.replace(userFolder, ''));
+            }
+        });
 
-                resolve(result);
-            });
-
-            filesStream.on(`error`, (err) => {
-                reject(err);
-            })
-        })
-
-        return result.filter((file) => file?.split('/')?.pop()?.search(query) !== -1)
+        return result.filter((file) => file?.split('/')?.pop()?.search(query) !== -1);
     }
 
     async renameFile(userId: number, path: string, newName: string) {
@@ -112,39 +97,20 @@ export class MinioService {
             // Pop the old folder name
             pathEdit.pop();
             const pathToNewFolder: string = pathEdit.join('/') + '/' + newName + '/';
+            const filesData: BucketItem[] = await this.getFilesData(pathToFile, true);
 
             // Copy all files in the folder to a folder with the new name
-            const files: string[] = await new Promise((resolve, reject) => {
-                const filesStream = this.minioClient.listObjects(this.mainBucket, pathToFile, true);
-                const filesData: string[] = [];
-
-                filesStream.on('data', (fileObj) => {
-                    filesData.push(fileObj?.name ?? '');
-                })
-        
-                filesStream.on('end', () => {
-                    resolve(filesData);
-                });
-
-                filesStream.on(`error`, (err) => {
-                    reject(err);
-                })
-            });
-
+            const files: string[] = filesData.map((fileObj) => fileObj.name ?? '');
             for (const file of files) {
                 const fileName = file.split('/').pop();
-
                 await this.minioClient.copyObject(this.mainBucket, pathToNewFolder + fileName, this.mainBucket + '/' + file);
             }
-
         } else {
             const pathToNewFile: string = pathEdit.join('/') + '/' + newName;
-
             await this.minioClient.copyObject(this.mainBucket, pathToNewFile, this.mainBucket + '/' + pathToFile);
         }
 
-
-        // Delete old file
+        // Delete old files
         await this.deleteFile(userId, path);
     }
 
@@ -153,29 +119,12 @@ export class MinioService {
 
         // Get and delete all files from folder
         if (pathToFile.endsWith('/')) {
-            const files = await new Promise((resolve, reject) => {
-                const filesStream = this.minioClient.listObjects(this.mainBucket, pathToFile, true);
-                const filesData: string[] = [];
-
-                filesStream.on('data', (fileObj) => {
-                    filesData.push(fileObj?.name ?? '');
-                })
-        
-                filesStream.on('end', () => {
-                    resolve(filesData);
-                });
-
-                filesStream.on(`error`, (err) => {
-                    reject(err);
-                })
-            });
-
+            const filesData: BucketItem[] = await this.getFilesData(pathToFile, true);
+            const files: string[] = filesData.map((fileObj) => fileObj.name ?? '');
             await this.minioClient.removeObjects(this.mainBucket, files as any);
         } else {
             // Delete single file
             await this.minioClient.removeObject(this.mainBucket, pathToFile);
         }
-
-        return;
     }
 }

@@ -3,6 +3,12 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { CloudService } from "./cloud.service";
 
+export interface GetFilesReturnType {
+    username?: string;
+    files?: string[];
+    folders?: string[];
+}
+
 @Controller("/api/cloud")
 @UseGuards(JwtAuthGuard)
 export class CloudController {
@@ -10,7 +16,7 @@ export class CloudController {
 
     @HttpCode(200)
     @Get()
-    async getCloud(@Request() req: any, @Query('path') path: string) {
+    async getCloud(@Request() req: any, @Query('path') path: string): Promise<GetFilesReturnType> {
         return await this.cloudService.getUserFiles(req.user.username, req.user.userId, path);
     }
 
