@@ -35,6 +35,12 @@ export class MinioService {
         );
     }
 
+    async downloadFile(path: string, userId: number) {
+        const pathToFile: string = `user-${userId}-files/${path}`;
+
+        console.log(`Downloading ${pathToFile}`);
+    }
+
     private async getFilesData(userFolder: string, isRecursive: boolean): Promise<BucketItem[]> {
         const filesData: BucketItem[] = [];
 

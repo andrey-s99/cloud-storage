@@ -14,6 +14,14 @@ export class CloudService {
         }
     }
 
+    async downloadFile(path: string, userId: number) {
+        try {
+            return await this.minioService.downloadFile(path, userId);
+        } catch (err) {
+            throw new InternalServerErrorException();
+        }
+    }
+
     async getUserFiles(username: string, userId: number, path: string): Promise<GetFilesReturnType> {
         try {
             return await this.minioService.getFiles(username, userId, path);

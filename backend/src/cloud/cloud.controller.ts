@@ -34,6 +34,14 @@ export class CloudController {
         return await this.cloudService.uploadFile(file, req.user.userId, path, relativePath);
     }
 
+    @HttpCode(201)
+    @Post('download')
+    @UseInterceptors(FileInterceptor('file'))
+    async downloadFile(@Query('path') path: string, @Request() req: any) {
+        // relativePath is used for folder uploads; It is empty for file uploads
+        return await this.cloudService.downloadFile(path, req.userId);
+    }
+
     @HttpCode(200)
     @Patch()
     async renameFile(@Request() req: any, @Body('path') path: string, @Body('newName') newName: string)
