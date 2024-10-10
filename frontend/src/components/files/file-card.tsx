@@ -26,6 +26,32 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
 
     const handleDownload = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
+
+        const pathToFile = path + name;
+        try {
+            const response = await axios.get(
+                `${apiUrl}/cloud/download?path=${pathToFile}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    responseType: "blob",
+                }
+            );
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', name);
+            document.body.appendChild(link);
+            link.click();
+
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            refresh();
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {

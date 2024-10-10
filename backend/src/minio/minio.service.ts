@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
 import { GetFilesReturnType } from "src/cloud/cloud.controller";
+import { Response } from "express";
 
 @Injectable()
 export class MinioService {
@@ -35,10 +36,17 @@ export class MinioService {
         );
     }
 
-    async downloadFile(path: string, userId: number) {
+    async downloadFile(path: string, userId: number, res: Response) {
         const pathToFile: string = `user-${userId}-files/${path}`;
 
         console.log(`Downloading ${pathToFile}`);
+
+        const fileStream = await this.minioClient.getObject(this.mainBucket, pathToFile);
+
+        res.setHeader('Content-Disposition', `attachment; filename=${path}`);
+        res.setHeader('Content-Type', 'application/octet-stream');
+
+        fileStream.pipe(res);
     }
 
     private async getFilesData(userFolder: string, isRecursive: boolean): Promise<BucketItem[]> {

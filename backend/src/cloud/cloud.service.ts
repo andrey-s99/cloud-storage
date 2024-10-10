@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { MinioService } from "src/minio/minio.service";
 import { GetFilesReturnType } from "./cloud.controller";
+import { Response } from "express";
 
 @Injectable()
 export class CloudService {
@@ -14,9 +15,9 @@ export class CloudService {
         }
     }
 
-    async downloadFile(path: string, userId: number) {
+    async downloadFile(path: string, userId: number, res: Response) {
         try {
-            return await this.minioService.downloadFile(path, userId);
+            return await this.minioService.downloadFile(path, userId, res);
         } catch (err) {
             throw new InternalServerErrorException();
         }
