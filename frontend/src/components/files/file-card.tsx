@@ -2,8 +2,8 @@ import { IconButton, Card, CardActions, CardContent, Typography, Dialog, DialogT
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import axios from "axios";
-import { FormEvent, useState } from "react";
-//import PreviewIcon from '@mui/icons-material/Preview';
+import React, { FormEvent, useState } from "react";
+import DownloadIcon from '@mui/icons-material/Download';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -23,6 +23,10 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
       const handleClose = () => {
         setOpenDialog(false);
     };
+
+    const handleDownload = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+    }
 
     const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
@@ -59,6 +63,12 @@ export const FileCard = ({ name, path, refresh }: FileCardType) => {
                     display: "flex",
                     justifyContent: "flex-end"
                 }}>
+                    <IconButton  
+                        size="small"
+                        onClick={handleDownload}
+                    >
+                        <DownloadIcon fontSize="small"/>
+                    </IconButton >
                     <IconButton  
                         size="small"
                         onClick={handleClickOpen}
