@@ -3,7 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import axios from "axios";
-//import PreviewIcon from '@mui/icons-material/Preview';
+import DownloadIcon from '@mui/icons-material/Download';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -30,6 +30,37 @@ export const FolderCard = ({ name, path, setPath, refresh }: FolderCardType) => 
         e.preventDefault();
 
         setPath(path + name);
+    }
+
+    const handleDownload = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        e.preventDefault();
+
+        const pathToFolder = path + name;
+        try {
+            const response = await axios.get(
+                `${apiUrl}/cloud/download?path=${pathToFolder}`, {
+                    headers: {
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    responseType: "blob",
+                }
+            );
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            const folderName = pathToFolder.split('/').filter(Boolean).pop(); // Get the folder name
+            link.href = url;
+            link.setAttribute('download', `${folderName}.zip`);
+            document.body.appendChild(link);
+            link.click();
+
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            refresh();
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     const handleDelete = async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -74,6 +105,12 @@ export const FolderCard = ({ name, path, setPath, refresh }: FolderCardType) => 
                         display: "flex",
                         justifyContent: "flex-end",
                     }}>
+                        <IconButton  
+                        size="small"
+                        onClick={handleDownload}
+                        >
+                            <DownloadIcon fontSize="small"/>
+                        </IconButton >
                         <IconButton  
                             size="small"
                             onClick={handleClickOpen}

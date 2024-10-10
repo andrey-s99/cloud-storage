@@ -19,6 +19,7 @@ export class CloudService {
         try {
             return await this.minioService.downloadFile(path, userId, res);
         } catch (err) {
+            console.log(err.message);
             throw new InternalServerErrorException();
         }
     }

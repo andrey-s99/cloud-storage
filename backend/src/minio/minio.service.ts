@@ -3,6 +3,7 @@ import { InjectMinio } from "nestjs-minio";
 import { Client, BucketItem } from "minio";
 import { GetFilesReturnType } from "src/cloud/cloud.controller";
 import { Response } from "express";
+import * as archiver from 'archiver';
 
 @Injectable()
 export class MinioService {
@@ -39,14 +40,32 @@ export class MinioService {
     async downloadFile(path: string, userId: number, res: Response) {
         const pathToFile: string = `user-${userId}-files/${path}`;
 
-        console.log(`Downloading ${pathToFile}`);
+        if (pathToFile.endsWith(`/`)) {
+            const filesStream = this.minioClient.listObjects(this.mainBucket, pathToFile, true);
 
-        const fileStream = await this.minioClient.getObject(this.mainBucket, pathToFile);
+            const archive = archiver('zip', {
+                zlib: { level: 8 } // Sets the compression level.
+            });
 
-        res.setHeader('Content-Disposition', `attachment; filename=${path}`);
-        res.setHeader('Content-Type', 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename=${path}`);
+            res.setHeader('Content-Type', 'application/zip');
+            archive.pipe(res);
 
-        fileStream.pipe(res);
+            for await (const fileObj of filesStream) {
+                const fileStream = await this.minioClient.getObject(this.mainBucket, fileObj.name);
+                console.log(`Adding ${fileObj.name} to archive`);
+                archive.append(fileStream, { name: fileObj.name.replace(pathToFile, '') });
+            }
+
+            await archive.finalize();
+        } else {
+            const fileStream = await this.minioClient.getObject(this.mainBucket, pathToFile);
+
+            res.setHeader('Content-Disposition', `attachment; filename=${path}`);
+            res.setHeader('Content-Type', 'application/octet-stream');
+
+            fileStream.pipe(res);
+        }   
     }
 
     private async getFilesData(userFolder: string, isRecursive: boolean): Promise<BucketItem[]> {
